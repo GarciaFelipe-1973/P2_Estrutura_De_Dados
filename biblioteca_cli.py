@@ -95,8 +95,11 @@ class BibliotecaCLI:
         
         while True:
             try:
-                uid = int(input("\nSelecione o ID do usuário para o empréstimo: "))
-                if uid in self.usuarios:
+                uid = int(input("\nSelecione o ID do usuário para o empréstimo, ou digite 0 para voltar ao menu anterior: "))
+                if uid == 0:
+                    print("Voltando ao menu anterior...")
+                    return None
+                elif uid in self.usuarios:
                     return uid
                 else:
                     print("ID de usuário inválido, tente novamente.")
@@ -115,14 +118,17 @@ class BibliotecaCLI:
 
         while True:
             try:
-                lid = int(input("\nSelecione o ID do livro para empréstimo: "))
-                if lid in self.livros and self.livros[lid]["exemplares"] > 0:
+                lid = int(input("\nSelecione o ID do livro para o empréstimo, ou digite 0 para voltar ao menu anterior: "))
+                if lid == 0:
+                    print("Voltando ao menu anterior...")
+                    return None
+                elif lid in self.livros and self.livros[lid]["exemplares"] > 0:
                     return lid
                 else:
                     print("ID de livro inválido ou sem exemplares disponíveis, tente novamente.")
             except ValueError:
                 print("Entrada inválida, por favor insira um número válido.")
-
+                
     def emprestar_livro(self, id_usuario, id_livro):
 
         if id_livro in self.usuarios[id_usuario]["emprestimos"]:
@@ -205,7 +211,7 @@ class BibliotecaCLI:
                 encontrou = True
                 titulo = self.livros[lid]["titulo"]
                 nomes = [self.usuarios[uid]["nome"] for uid in fila]
-                print(f"{titulo}: {', '.join(nomes)}")
+                print(f"Livro: {titulo} - {', '.join(nomes)}")
                 continuar()
 
         if not encontrou:
@@ -260,8 +266,21 @@ def submenu_livros(biblioteca):
         if op == "1":
             titulo = input("Título: ")
             autor = input("Autor: ")
-            categorias = input("Categorias (separadas por vírgula): ").split(",")
-            exemplares = int(input("Quantidade de exemplares: "))
+            while True:
+                categorias = input("Categorias (separadas por vírgula): ").split(",")
+                categorias = [c.strip() for c in categorias]
+
+                if all(c.replace(" ", "").isalpha() for c in categorias):
+                    break
+                else:
+                    print("\nErro: Categorias deve ser um texto! Tente novamente")
+            while True:
+                exemplares = input("Quantidade de exemplares: ")
+                try:
+                    exemplares = int(exemplares)
+                    break
+                except ValueError:
+                    print("\nErro: Exemplares deve ser um valor númerico! Tente novamente")
             biblioteca.adicionar_livro(titulo, autor, [c.strip() for c in categorias], exemplares)
         elif op == "2":
             biblioteca.mostrar_livros()
@@ -283,8 +302,20 @@ def submenu_usuarios(biblioteca):
         if op == "1":
             nome = input("Nome: ")
             email = input("Email: ")
-            telefone = input("Telefone: ")
-            cpf = input("CPF: ")
+            while True:
+                telefone = input("Telefone: ")
+                try:
+                    telefone = int(telefone)
+                    break
+                except ValueError:
+                    print("\nErro: Telefone deve ser um valor númerico! Tente novamente")
+            while True:
+                cpf = input("CPF: ")
+                try:
+                    cpf = int(cpf)
+                    break
+                except ValueError:
+                    print("\nErro: CPF deve ser um valor númerico! Tente novamente")
             biblioteca.cadastrar_usuario(nome, email, telefone, cpf)
         elif op == "2":
             biblioteca.mostrar_usuarios()
