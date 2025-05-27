@@ -20,23 +20,23 @@ class LinkedList:
 
 class BibliotecaCLI:
     def __init__(self):
-        self.livros = {}  
-        self.usuarios = {}  
+        self.livros = {}
+        self.usuarios = {}
         self.categorias = set()
-        self.fila_espera = {}  
+        self.fila_espera = {}
         self.pilha_emprestimos = []
         self.historico = LinkedList()
         self.proximo_id_livro = 1
         self.proximo_id_usuario = 1
 
-    #====================Funções Livros====================
+    #==================== Funções Livros ====================
 
     def adicionar_livro(self, titulo, autor, categorias, exemplares):
         id_livro = self.proximo_id_livro
         self.livros[id_livro] = {
             "titulo": titulo,
             "autor": autor,
-            "categorias": set(categorias), 
+            "categorias": set(categorias),
             "exemplares": exemplares
         }
         self.categorias.update(categorias)
@@ -49,15 +49,21 @@ class BibliotecaCLI:
         print("\nLivros disponíveis:")
         if not self.livros:
             print("Nenhum livro cadastrado.")
-        for id_livro, dados in self.livros.items():
-            print(f"{id_livro}: {dados['titulo']} ({dados['autor']}) - Categorias: {', '.join(dados['categorias'])}")
+        else:
+            for id_livro, dados in self.livros.items():
+                print(f"{id_livro}: {dados['titulo']} ({dados['autor']}) - Categorias: {', '.join(dados['categorias'])} - Exemplares: {dados['exemplares']}")
         continuar()
-    
 
 
-    #====================Funções Usuarios====================
+    #==================== Funções Usuários ====================
 
     def cadastrar_usuario(self, nome, email, telefone, cpf):
+        for usuario in self.usuarios.values():
+            if usuario["cpf"] == cpf:
+                print(f"\nErro: Já existe um usuário cadastrado com o CPF {cpf}.")
+                continuar()
+                return
+
         id_usuario = self.proximo_id_usuario
         self.usuarios[id_usuario] = {
             "nome": nome,
@@ -68,126 +74,138 @@ class BibliotecaCLI:
         }
         self.proximo_id_usuario += 1
         self.historico.adicionar(f"Usuário cadastrado: {nome} (ID: {id_usuario})")
+        print(f"Usuário '{nome}' cadastrado com sucesso!")
         continuar()
-
 
     def mostrar_usuarios(self):
         print("\nUsuários cadastrados:")
         if not self.usuarios:
-            print("\nNenhum usuário cadastrado.")
-        for id_user, info in self.usuarios.items():
-            livros = [self.livros[l]["titulo"] for l in info["emprestimos"]]
-            print(f"{id_user}: {info['nome']} - Empréstimos: {', '.join(livros) if livros else 'Nenhum'}")
+            print("Nenhum usuário cadastrado.")
+        else:
+            for id_user, info in self.usuarios.items():
+                livros = [self.livros[l]["titulo"] for l in info["emprestimos"]]
+                print(f"\nID: {id_user} - Nome: {info['nome']} - Email: {info['email']} - Telefone: {info['telefone']} - CPF: {info['cpf']}")
+                print(f"Empréstimos: {', '.join(livros) if livros else 'Nenhum'}")
         continuar()
 
-
-    #====================Funções Emprestimos====================
+    #==================== Funções Empréstimos ====================
 
     def selecionar_usuario(self):
-        print("\n--- Usuários Cadastrados ---")
         if not self.usuarios:
-            print("Nenhum usuário cadastrado.")
+            print("\nNenhum usuário cadastrado.")
             continuar()
             return None
 
+        print("\n--- Usuários Cadastrados ---")
         for id_user, info in self.usuarios.items():
-            print(f"{id_user}: {info['nome']} - Empréstimos: {', '.join([self.livros[lid]['titulo'] for lid in info['emprestimos']]) if info['emprestimos'] else 'Nenhum'}")
-        
+            livros = [self.livros[lid]['titulo'] for lid in info['emprestimos']]
+            print(f"{id_user}: {info['nome']} - Empréstimos: {', '.join(livros) if livros else 'Nenhum'}")
+
         while True:
             try:
-                uid = int(input("\nSelecione o ID do usuário para o empréstimo, ou digite 0 para voltar ao menu anterior: "))
+                uid = int(input("\nID do usuário (0 para voltar): "))
                 if uid == 0:
-                    print("Voltando ao menu anterior...")
                     return None
-                elif uid in self.usuarios:
+                if uid in self.usuarios:
                     return uid
-                else:
-                    print("ID de usuário inválido, tente novamente.")
+                print("ID inválido.")
             except ValueError:
-                print("Entrada inválida, por favor insira um número válido.")
+                print("Digite um número válido.")
 
     def selecionar_livro(self):
-        print("\n--- Livros Disponíveis ---")
         if not self.livros:
-            print("Nenhum livro disponível.")
+            print("\nNenhum livro cadastrado.")
             continuar()
             return None
 
+        print("\n--- Livros Disponíveis ---")
         for id_livro, dados in self.livros.items():
             print(f"{id_livro}: {dados['titulo']} ({dados['autor']}) - Exemplares: {dados['exemplares']}")
 
         while True:
             try:
-                lid = int(input("\nSelecione o ID do livro para o empréstimo, ou digite 0 para voltar ao menu anterior: "))
+                lid = int(input("\nID do livro (0 para voltar): "))
+                if lid == 0:
+                    return None
+                if lid in self.livros and self.livros[lid]["exemplares"] > 0:
+                    return lid
+                print("ID inválido ou sem exemplares.")
+            except ValueError:
+                print("Digite um número válido.")
+
+    def selecionar_livro_para_devolver(self, id_usuario):
+        emprestimos = self.usuarios[id_usuario]["emprestimos"]
+        if not emprestimos:
+            print("Usuário não possui livros para devolver.")
+            continuar()
+            return None
+
+        print("\n--- Livros emprestados pelo usuário ---")
+        for lid in emprestimos:
+            titulo = self.livros[lid]["titulo"]
+            print(f"{lid}: {titulo}")
+
+        while True:
+            try:
+                lid = int(input("\nSelecione o ID do livro para devolver ou digite 0 para voltar: "))
                 if lid == 0:
                     print("Voltando ao menu anterior...")
                     return None
-                elif lid in self.livros and self.livros[lid]["exemplares"] > 0:
+                elif lid in emprestimos:
                     return lid
                 else:
-                    print("ID de livro inválido ou sem exemplares disponíveis, tente novamente.")
+                    print("ID inválido. Selecione um dos livros que o usuário possui.")
             except ValueError:
                 print("Entrada inválida, por favor insira um número válido.")
-                
-    def emprestar_livro(self, id_usuario, id_livro):
 
+    def emprestar_livro(self, id_usuario, id_livro):
         if id_livro in self.usuarios[id_usuario]["emprestimos"]:
             print("Usuário já possui este livro.")
-            continuar()
-            return
-
-        if self.fila_espera[id_livro] and self.fila_espera[id_livro][0] != id_usuario:
+        elif self.fila_espera[id_livro] and self.fila_espera[id_livro][0] != id_usuario:
             print("Livro está reservado por outro usuário.")
-            continuar()
-            return
+        else:
+            self.usuarios[id_usuario]["emprestimos"].append(id_livro)
+            self.pilha_emprestimos.append((id_usuario, id_livro))
+            self.livros[id_livro]["exemplares"] -= 1
 
-        self.usuarios[id_usuario]["emprestimos"].append(id_livro)
-        self.pilha_emprestimos.append((id_usuario, id_livro))
-        self.livros[id_livro]["exemplares"] -= 1  
+            if self.fila_espera[id_livro] and self.fila_espera[id_livro][0] == id_usuario:
+                self.fila_espera[id_livro].pop(0)
 
-        if self.fila_espera[id_livro] and self.fila_espera[id_livro][0] == id_usuario:
-            self.fila_espera[id_livro].pop(0)
-
-        titulo = self.livros[id_livro]["titulo"]
-        nome = self.usuarios[id_usuario]["nome"]
-        self.historico.adicionar(f"{nome} emprestou '{titulo}'")
-        print(f"Livro '{titulo}' emprestado com sucesso para {nome}.")
+            titulo = self.livros[id_livro]["titulo"]
+            nome = self.usuarios[id_usuario]["nome"]
+            self.historico.adicionar(f"{nome} emprestou '{titulo}'")
+            print(f"Livro '{titulo}' emprestado para {nome}.")
+        continuar()
 
     def devolver_livro(self, id_usuario, id_livro):
-
         if id_livro in self.usuarios[id_usuario]["emprestimos"]:
             self.usuarios[id_usuario]["emprestimos"].remove(id_livro)
             titulo = self.livros[id_livro]["titulo"]
             nome = self.usuarios[id_usuario]["nome"]
-            
+
             if self.fila_espera[id_livro]:
                 proximo_usuario = self.fila_espera[id_livro].pop(0)
                 self.usuarios[proximo_usuario]["emprestimos"].append(id_livro)
-                nome_proximo_usuario = self.usuarios[proximo_usuario]["nome"]
-                
-                self.historico.adicionar(f"Livro '{titulo}' devolvido por {nome}. Emprestado a {nome_proximo_usuario}.")
-                print(f"{nome} devolveu o livro '{titulo}'. O livro foi emprestado a {nome_proximo_usuario}.")
-                continuar()
+                nome_proximo = self.usuarios[proximo_usuario]["nome"]
+                self.historico.adicionar(f"Livro '{titulo}' devolvido por {nome}. Emprestado a {nome_proximo}.")
+                print(f"{nome} devolveu '{titulo}'. Emprestado a {nome_proximo}.")
             else:
                 self.historico.adicionar(f"{nome} devolveu '{titulo}'")
-                print(f"{nome} devolveu o livro '{titulo}'.")
-                continuar()
+                print(f"{nome} devolveu '{titulo}'.")
         else:
-            print("Empréstimo não encontrado para esse usuário e livro.")
-            continuar()
+            print("Empréstimo não encontrado.")
+        continuar()
 
     def adicionar_fila_espera(self, id_usuario, id_livro):
-
         if id_usuario not in self.fila_espera[id_livro]:
             self.fila_espera[id_livro].append(id_usuario)
             self.historico.adicionar(f"Usuário {id_usuario} entrou na fila para o livro {id_livro}")
-            print(f"Usuário adicionado à fila de espera do livro '{self.livros[id_livro]['titulo']}'.")
+            print(f"Usuário adicionado à fila de espera de '{self.livros[id_livro]['titulo']}'.")
         else:
-            print("Usuário já está na fila de espera deste livro.")
+            print("Usuário já está na fila deste livro.")
+        continuar()
 
-
-
-    #====================Funções Emprestimos====================
+    #==================== Funções Relatórios ====================
 
     def listar_emprestimos_atuais(self):
         print("\n--- Empréstimos Atuais ---")
@@ -198,10 +216,9 @@ class BibliotecaCLI:
                 nome = dados["nome"]
                 livros = [self.livros[lid]["titulo"] for lid in dados["emprestimos"]]
                 print(f"{nome} está com: {', '.join(livros)}")
-                continuar()
         if not encontrou:
-            print("Nenhum empréstimo ativo no momento.")
-            continuar()
+            print("Nenhum empréstimo ativo.")
+        continuar()
 
     def listar_filas_de_espera(self):
         print("\n--- Filas de Espera ---")
@@ -211,25 +228,21 @@ class BibliotecaCLI:
                 encontrou = True
                 titulo = self.livros[lid]["titulo"]
                 nomes = [self.usuarios[uid]["nome"] for uid in fila]
-                print(f"Livro: {titulo} - {', '.join(nomes)}")
-                continuar()
-
+                print(f"Livro: {titulo} - Fila: {', '.join(nomes)}")
         if not encontrou:
             print("Nenhuma fila de espera ativa.")
-            continuar()
+        continuar()
 
     def mostrar_historico(self):
         print("\nHistórico de ações:")
         if not self.historico.head:
             print("Nenhuma ação registrada ainda.")
-            continuar()
         else:
             self.historico.mostrar()
-            continuar()
+        continuar()
 
+#==================== Menus ====================
 
-
-#====================Menu Principal====================
 def menu():
     biblioteca = BibliotecaCLI()
     while True:
@@ -239,7 +252,7 @@ def menu():
         print("3. Empréstimos")
         print("4. Relatórios e histórico")
         print("0. Sair")
-        op = input("\nEscolha: ")
+        op = input("Escolha: ")
         if op == "1":
             submenu_livros(biblioteca)
         elif op == "2":
@@ -249,85 +262,60 @@ def menu():
         elif op == "4":
             submenu_relatorios(biblioteca)
         elif op == "0":
-            print("\nSaindo...")
+            print("Saindo...")
             break
         else:
-            print("\nOpção inválida.")
+            print("Opção inválida.")
             continuar()
 
-#====================Menu Livros====================
 def submenu_livros(biblioteca):
     while True:
         print("\n--- Gerenciar Livros ---")
         print("1. Adicionar livro")
         print("2. Mostrar livros")
         print("0. Voltar")
-        op = input("\nEscolha: ")
+        op = input("Escolha: ")
         if op == "1":
             titulo = input("Título: ")
             autor = input("Autor: ")
+            categorias = input("Categorias (separadas por vírgula): ").split(",")
+            categorias = [c.strip() for c in categorias if c.strip()]
             while True:
-                categorias = input("Categorias (separadas por vírgula): ").split(",")
-                categorias = [c.strip() for c in categorias]
-
-                if all(c.replace(" ", "").isalpha() for c in categorias):
-                    break
-                else:
-                    print("\nErro: Categorias deve ser um texto! Tente novamente")
-            while True:
-                exemplares = input("Quantidade de exemplares: ")
                 try:
-                    exemplares = int(exemplares)
+                    exemplares = int(input("Quantidade de exemplares: "))
                     break
                 except ValueError:
-                    print("\nErro: Exemplares deve ser um valor númerico! Tente novamente")
-            biblioteca.adicionar_livro(titulo, autor, [c.strip() for c in categorias], exemplares)
+                    print("Erro: Exemplares deve ser numérico.")
+            biblioteca.adicionar_livro(titulo, autor, categorias, exemplares)
         elif op == "2":
             biblioteca.mostrar_livros()
         elif op == "0":
             break
         else:
-            print("\nOpção inválida.")
+            print("Opção inválida.")
             continuar()
 
-
-#====================Menu Usuarios====================
 def submenu_usuarios(biblioteca):
     while True:
         print("\n--- Gerenciar Usuários ---")
         print("1. Cadastrar usuário")
         print("2. Mostrar usuários")
         print("0. Voltar")
-        op = input("\nEscolha: ")
+        op = input("Escolha: ")
         if op == "1":
             nome = input("Nome: ")
             email = input("Email: ")
-            while True:
-                telefone = input("Telefone: ")
-                try:
-                    telefone = int(telefone)
-                    break
-                except ValueError:
-                    print("\nErro: Telefone deve ser um valor númerico! Tente novamente")
-            while True:
-                cpf = input("CPF: ")
-                try:
-                    cpf = int(cpf)
-                    break
-                except ValueError:
-                    print("\nErro: CPF deve ser um valor númerico! Tente novamente")
+            telefone = input("Telefone: ")
+            cpf = input("CPF: ")
             biblioteca.cadastrar_usuario(nome, email, telefone, cpf)
         elif op == "2":
             biblioteca.mostrar_usuarios()
         elif op == "0":
             break
         else:
-            print("\nOpção inválida.")
+            print("Opção inválida.")
             continuar()
 
-
-
-#====================Menu Emprestimos====================
 def submenu_emprestimos(biblioteca):
     while True:
         print("\n--- Empréstimos ---")
@@ -335,7 +323,7 @@ def submenu_emprestimos(biblioteca):
         print("2. Devolver livro")
         print("3. Adicionar à fila de espera")
         print("0. Voltar")
-        op = input("\nEscolha: ")
+        op = input("Escolha: ")
         if op == "1":
             uid = biblioteca.selecionar_usuario()
             if uid is not None:
@@ -345,7 +333,7 @@ def submenu_emprestimos(biblioteca):
         elif op == "2":
             uid = biblioteca.selecionar_usuario()
             if uid is not None:
-                lid = biblioteca.selecionar_livro()
+                lid = biblioteca.selecionar_livro_para_devolver(uid)
                 if lid is not None:
                     biblioteca.devolver_livro(uid, lid)
         elif op == "3":
@@ -357,11 +345,9 @@ def submenu_emprestimos(biblioteca):
         elif op == "0":
             break
         else:
-            print("\nOpção inválida.")
+            print("Opção inválida.")
             continuar()
 
-
-#====================Menu Relatorios====================
 def submenu_relatorios(biblioteca):
     while True:
         print("\n--- Relatórios e Histórico ---")
@@ -369,7 +355,7 @@ def submenu_relatorios(biblioteca):
         print("2. Mostrar filas de espera")
         print("3. Mostrar histórico de ações")
         print("0. Voltar")
-        op = input("\nEscolha: ")
+        op = input("Escolha: ")
         if op == "1":
             biblioteca.listar_emprestimos_atuais()
         elif op == "2":
@@ -379,13 +365,11 @@ def submenu_relatorios(biblioteca):
         elif op == "0":
             break
         else:
-            print("\nOpção inválida.")
+            print("Opção inválida.")
             continuar()
 
-#====================Continuar====================
 def continuar():
-    input('...')
+    input("Pressione ENTER para continuar...")
 
 if __name__ == "__main__":
     menu()
-
