@@ -93,22 +93,28 @@ O Sistema de Gerenciamento de Biblioteca demonstra, de forma prática, como as e
 
 ---
 
-## 6. Autor
+## 6. Autores
 
 Desenvolvido por: Daniel Victor Costa  
-RA: 1989218  
-GitHub: [https://github.com/seu-usuario](https://github.com/userdanieldev?tab=following)
 
-LinkedIn: [https://linkedin.com/in/seu-perfil](https://www.linkedin.com/in/daniel-costa-b88a07198/)
+RA: 1989218  
+
+GitHub: [GitHub](https://github.com/userdanieldev?tab=following)
+
+LinkedIn: [LinkedIn](https://www.linkedin.com/in/daniel-costa-b88a07198/)
 
 Desenvolvido por: Felipe Souza Garcia  
-RA: 1990279 
-GitHub: [https://github.com/seu-usuario](https://github.com/GarciaFelipe-1973) 
 
-LinkedIn: [https://linkedin.com/in/seu-perfil](https://www.linkedin.com/in/felipe-souza-garcia-94252b314/)
+RA: 1990279
 
-Desenvolvido por: Gustavo Henrique Vieira da Silva  
+GitHub: [GitHub](https://github.com/GarciaFelipe-1973) 
+
+LinkedIn: [LinkedIn](https://www.linkedin.com/in/felipe-souza-garcia-94252b314/)
+
+Desenvolvido por: Gustavo Henrique Vieira da Silva 
+
 RA: 1992080  
-GitHub: [https://github.com/seu-usuario](https://github.com/GuVieir4)
 
-LinkedIn: [https://linkedin.com/in/seu-perfil](https://www.linkedin.com/in/gustavo-henrique-vieira-da-silva-6284b7231/)
+GitHub: [GitHub](https://github.com/GuVieir4)
+
+LinkedIn: [LinkedIn](https://www.linkedin.com/in/gustavo-henrique-vieira-da-silva-6284b7231/)
