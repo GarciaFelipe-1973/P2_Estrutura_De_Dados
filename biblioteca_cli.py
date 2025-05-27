@@ -305,8 +305,20 @@ def submenu_usuarios(biblioteca):
         if op == "1":
             nome = input("Nome: ")
             email = input("Email: ")
-            telefone = input("Telefone: ")
-            cpf = input("CPF: ")
+            while True:
+                telefone = input("Telefone: ")
+                try:
+                    telefone = int(telefone)
+                    break
+                except ValueError:
+                    print("\nErro: Telefone deve ser um valor númerico! Tente novamente")
+            while True:
+                cpf = input("CPF: ")
+                try:
+                    cpf = int(cpf)
+                    break
+                except ValueError:
+                    print("\nErro: CPF deve ser um valor númerico! Tente novamente")
             biblioteca.cadastrar_usuario(nome, email, telefone, cpf)
         elif op == "2":
             biblioteca.mostrar_usuarios()
