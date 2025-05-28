@@ -3,13 +3,13 @@
 ## Integrantes
 
 - Nome Completo: Daniel Victor Costa  
-- RA: 1989218
+  RA: 1989218
 
 - Nome Completo: Felipe Souza Garcia  
-- RA: 1990279
+  RA: 1990279
 
 - Nome Completo: Gustavo Henrique Vieira da Silva  
-- RA: 1992080
+  RA: 1992080
 
 ---
 
@@ -37,19 +37,19 @@ Este projeto não utiliza bibliotecas externas além das nativas do Python. Port
 1. Clone o repositório do projeto ou copie os arquivos para seu ambiente local.
 
    ```
-   git clone https://github.com/seu-usuario/seu-repositorio.git
+   git clone https://github.com/GarciaFelipe-1973/P2_Estrutura_De_Dados.git
    ```
 
 2. Acesse a pasta do projeto:
 
    ```
-   cd seu-repositorio
+   cd P2_Estrutura_De_Dados
    ```
 
 3. Execute o arquivo principal:
 
    ```
-   python biblioteca.py
+   python biblioteca_cli.py
    ```
 
 ---
@@ -96,25 +96,30 @@ O Sistema de Gerenciamento de Biblioteca demonstra, de forma prática, como as e
 ## 6. Autores
 
 Desenvolvido por: Daniel Victor Costa  
-
 RA: 1989218  
-
-GitHub: [GitHub](https://github.com/userdanieldev?tab=following)
-
+GitHub: [GitHub](https://github.com/userdanieldev?tab=following)  
 LinkedIn: [LinkedIn](https://www.linkedin.com/in/daniel-costa-b88a07198/)
 
 Desenvolvido por: Felipe Souza Garcia  
-
-RA: 1990279
-
-GitHub: [GitHub](https://github.com/GarciaFelipe-1973) 
-
+RA: 1990279  
+GitHub: [GitHub](https://github.com/GarciaFelipe-1973)  
 LinkedIn: [LinkedIn](https://www.linkedin.com/in/felipe-souza-garcia-94252b314/)
 
-Desenvolvido por: Gustavo Henrique Vieira da Silva 
-
+Desenvolvido por: Gustavo Henrique Vieira da Silva  
 RA: 1992080  
-
-GitHub: [GitHub](https://github.com/GuVieir4)
-
+GitHub: [GitHub](https://github.com/GuVieir4)  
 LinkedIn: [LinkedIn](https://www.linkedin.com/in/gustavo-henrique-vieira-da-silva-6284b7231/)
+
+---
+
+## 7. Fluxograma do Projeto
+
+Abaixo está representado o fluxograma geral do funcionamento do sistema de gerenciamento da biblioteca, ilustrando o fluxo entre cadastro, empréstimos, devoluções, relatórios e fila de espera.
+
+### 7.1. Visualização
+
+![Fluxograma do Sistema de Biblioteca](./FluxogramaP2EstruturaDeDados.png)  
+
+### 7.2. Acesso via Link
+
+🔗 [Visualizar Fluxograma do Projeto](https://excalidraw.com/#json=2Cc7CndFa9ie5rPNG863i,BeZRqyAUsIxIfanuaxPMmw)
