@@ -1,3 +1,5 @@
+import os
+
 class Node:
     def __init__(self, data):
         self.data = data
@@ -32,6 +34,13 @@ class BibliotecaCLI:
     #==================== Funções Livros ====================
 
     def adicionar_livro(self, titulo, autor, categorias, exemplares):
+        for livro in self.livros.values():
+            if livro["titulo"].strip().lower() == titulo.strip().lower() and \
+                livro["autor"].strip().lower() == autor.strip().lower():
+                print(f"\nErro: O livro '{titulo}' de {autor} já está cadastrado na biblioteca")
+                continuar()
+                return
+        
         id_livro = self.proximo_id_livro
         self.livros[id_livro] = {
             "titulo": titulo,
@@ -53,6 +62,50 @@ class BibliotecaCLI:
             for id_livro, dados in self.livros.items():
                 print(f"{id_livro}: {dados['titulo']} ({dados['autor']}) - Categorias: {', '.join(dados['categorias'])} - Exemplares: {dados['exemplares']}")
         continuar()
+        
+    def deletar_livro(self):
+        if not self.livros:
+            print("\nNenhum livro cadastrado.")
+            continuar()
+            return
+        
+        print("\n--- Livros Cadastrados ---")
+        for id_livro, dados in self.livros.items():
+            print(f"{id_livro}: {dados['titulo']} ({dados['autor']}) - Exemplares: {dados['exemplares']}")
+            
+        try:
+            id_livro = int(input("\nDigite o ID do livro que deseja deletar (0 para voltar): "))
+            if id_livro == 0:
+                return
+            if id_livro not in self.livros:
+                print("ID inválido.")
+                continuar()
+                return
+            
+            livro_emprestado = False
+
+            for usuario in self.usuarios.values():
+                if id_livro in usuario["emprestimos"]:
+                    livro_emprestado = True
+                    break
+                
+            if livro_emprestado == True:
+                print("Esse livro está emprestado para alguém")
+                continuar()
+                return
+        
+            titulo = self.livros[id_livro]["titulo"]
+            del self.livros[id_livro]
+            
+            if id_livro in self.fila_espera:
+                del self.fila_espera[id_livro]
+                
+            self.historico.adicionar(f"Livro deletado: {titulo} (ID: {id_livro})")
+            print(f"Livro '{titulo}' foi deletado com sucesso.")
+        except ValueError:
+            print("Entrada inválida. Digite um número válido")
+        continuar()
+            
 
 
     #==================== Funções Usuários ====================
@@ -87,7 +140,43 @@ class BibliotecaCLI:
                 print(f"\nID: {id_user} - Nome: {info['nome']} - Email: {info['email']} - Telefone: {info['telefone']} - CPF: {info['cpf']}")
                 print(f"Empréstimos: {', '.join(livros) if livros else 'Nenhum'}")
         continuar()
+        
+    def deletar_usuario(self):
+        if not self.usuarios:
+            print("\nNenhum usuário cadastrado")
+            continuar()
+            return
 
+        print("\n--- Usuários Cadastrados ---")
+        for id_user, info in self.usuarios.items():
+            print(f"{id_user}: {info['nome']} - Email: {info['email']} - Empréstimos: {len(info['emprestimos'])}")
+            
+        try:
+            id_usuario = int(input("\nDigite o ID do usuário que deseja deletar (0 para voltar): "))
+            if id_usuario == 0:
+                return
+            elif id_usuario not in self.usuarios:
+                print("ID inválido.")
+                continuar()
+                return
+            elif self.usuarios[id_usuario]["emprestimos"]:
+                print("Este usuário possui livros emprestados. Devolva todos os livros antes de excluí-lo.")
+                continuar()
+                return
+            
+            nome = self.usuarios[id_usuario]["nome"]
+            del self.usuarios[id_usuario]
+            
+            for fila in self.fila_espera.values():
+                if id_usuario in fila:
+                    fila.remove(id_usuario)
+                
+            self.historico.adicionar(f"Usuário deletado: {nome} (ID: {id_usuario})")
+            print(f"Usuário '{nome}' deletado com sucesso.")
+            
+        except ValueError:
+            print("ID inválido")
+        continuar()
     #==================== Funções Empréstimos ====================
 
     def selecionar_usuario(self):
@@ -157,6 +246,27 @@ class BibliotecaCLI:
                     print("ID inválido. Selecione um dos livros que o usuário possui.")
             except ValueError:
                 print("Entrada inválida, por favor insira um número válido.")
+                
+    def selecionar_livro_fila_de_espera(self):
+        if not self.livros:
+            print("\nNenhum livro cadastrado.")
+            continuar()
+            return None
+
+        print("\n--- Livros Disponíveis ---")
+        for id_livro, dados in self.livros.items():
+            print(f"{id_livro}: {dados['titulo']} ({dados['autor']}) - Exemplares: {dados['exemplares']}")
+
+        while True:
+            try:
+                lid = int(input("\nID do livro (0 para voltar): "))
+                if lid == 0:
+                    return None
+                if lid in self.livros:
+                    return lid
+                print("ID inválido.")
+            except ValueError:
+                print("Digite um número válido.")
 
     def emprestar_livro(self, id_usuario, id_livro):
         if id_livro in self.usuarios[id_usuario]["emprestimos"]:
@@ -191,12 +301,18 @@ class BibliotecaCLI:
                 print(f"{nome} devolveu '{titulo}'. Emprestado a {nome_proximo}.")
             else:
                 self.historico.adicionar(f"{nome} devolveu '{titulo}'")
+                self.livros[id_livro]["exemplares"] += 1
                 print(f"{nome} devolveu '{titulo}'.")
         else:
             print("Empréstimo não encontrado.")
         continuar()
 
     def adicionar_fila_espera(self, id_usuario, id_livro):
+        # if self.livros[id_livro]["exemplares"] > 0:
+        #     print("Aviso: Esse livro está disponível para empréstimo atualmente.")
+        #     continuar()
+        #     return        
+        
         if id_usuario not in self.fila_espera[id_livro]:
             self.fila_espera[id_livro].append(id_usuario)
             self.historico.adicionar(f"Usuário {id_usuario} entrou na fila para o livro {id_livro}")
@@ -251,6 +367,7 @@ def menu():
         print("2. Gerenciar usuários")
         print("3. Empréstimos")
         print("4. Relatórios e histórico")
+        print("5. Limpar terminal")
         print("0. Sair")
         op = input("Escolha: ")
         if op == "1":
@@ -261,6 +378,8 @@ def menu():
             submenu_emprestimos(biblioteca)
         elif op == "4":
             submenu_relatorios(biblioteca)
+        elif op == "5":
+            limpar_terminal()
         elif op == "0":
             print("Saindo...")
             break
@@ -272,7 +391,8 @@ def submenu_livros(biblioteca):
     while True:
         print("\n--- Gerenciar Livros ---")
         print("1. Adicionar livro")
-        print("2. Mostrar livros")
+        print("2. Deletar livro")
+        print("3. Mostrar livros")
         print("0. Voltar")
         op = input("Escolha: ")
         if op == "1":
@@ -288,6 +408,8 @@ def submenu_livros(biblioteca):
                     print("Erro: Exemplares deve ser numérico.")
             biblioteca.adicionar_livro(titulo, autor, categorias, exemplares)
         elif op == "2":
+            biblioteca.deletar_livro()
+        elif op == "3":
             biblioteca.mostrar_livros()
         elif op == "0":
             break
@@ -299,7 +421,8 @@ def submenu_usuarios(biblioteca):
     while True:
         print("\n--- Gerenciar Usuários ---")
         print("1. Cadastrar usuário")
-        print("2. Mostrar usuários")
+        print("2. Deletar usuário")
+        print("3. Mostrar usuários")
         print("0. Voltar")
         op = input("Escolha: ")
         if op == "1":
@@ -321,6 +444,8 @@ def submenu_usuarios(biblioteca):
                     print("\nErro: CPF deve ser um valor númerico! Tente novamente")
             biblioteca.cadastrar_usuario(nome, email, telefone, cpf)
         elif op == "2":
+            biblioteca.deletar_usuario()
+        elif op == "3":
             biblioteca.mostrar_usuarios()
         elif op == "0":
             break
@@ -351,7 +476,7 @@ def submenu_emprestimos(biblioteca):
         elif op == "3":
             uid = biblioteca.selecionar_usuario()
             if uid is not None:
-                lid = biblioteca.selecionar_livro()
+                lid = biblioteca.selecionar_livro_fila_de_espera()
                 if lid is not None:
                     biblioteca.adicionar_fila_espera(uid, lid)
         elif op == "0":
@@ -382,6 +507,9 @@ def submenu_relatorios(biblioteca):
 
 def continuar():
     input("Pressione ENTER para continuar...")
+    
+def limpar_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 if __name__ == "__main__":
     menu()
