@@ -308,10 +308,10 @@ class BibliotecaCLI:
         continuar()
 
     def adicionar_fila_espera(self, id_usuario, id_livro):
-        # if self.livros[id_livro]["exemplares"] > 0:
-        #     print("Aviso: Esse livro está disponível para empréstimo atualmente.")
-        #     continuar()
-        #     return        
+        if self.livros[id_livro]["exemplares"] > 0:
+            print("Aviso: Esse livro está disponível para empréstimo atualmente.")
+            continuar()
+            return        
         
         if id_usuario not in self.fila_espera[id_livro]:
             self.fila_espera[id_livro].append(id_usuario)
