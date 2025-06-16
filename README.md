@@ -77,13 +77,16 @@ Toda a interação ocorre por meio de menus no terminal, solicitando informaçõ
 
 O projeto foi planejado utilizando diferentes estruturas de dados, cada uma escolhida de forma estratégica para atender às necessidades específicas das funcionalidades propostas.
 
-| Estrutura de Dados | Aplicação no Sistema | Justificativa |
-|--------------------|-----------------------|----------------|
-| **Lista Encadeada** | Histórico de operações (empréstimos, devoluções, cadastros) | Permite registrar e acessar ações na ordem em que ocorreram, além de ser eficiente para inserções constantes no início da lista, com baixo consumo de memória. |
-| **Pilha (Lista Python)** | Controle de ordem dos empréstimos realizados | O modelo de Pilha (último a entrar, primeiro a sair) permite rastrear os empréstimos mais recentes, possibilitando consultas ou desfazer ações em uma possível expansão futura. |
+| Estrutura de Dados         | Aplicação no Sistema                                         | Justificativa |
+|----------------------------|--------------------------------------------------------------|----------------|
+| **Lista Encadeada**        | Histórico de operações (empréstimos, devoluções, cadastros) | Permite registrar e acessar ações na ordem em que ocorreram, além de ser eficiente para inserções constantes no início da lista, com baixo consumo de memória. |
+| **Lista Duplamente Encadeada** | Navegação entre livros cadastrados (próximo e anterior)      | Ideal para cenários onde é necessário navegar para frente e para trás, como ao visualizar os livros um a um, facilitando o controle da ordem e remoções. |
+| **Pilha (Lista Python)**   | Controle de ordem dos empréstimos realizados                | O modelo de Pilha (último a entrar, primeiro a sair) permite rastrear os empréstimos mais recentes, possibilitando consultas ou desfazer ações em uma possível expansão futura. |
 | **Fila (Dicionário com listas encadeadas)** | Gerenciamento de fila de espera para livros indisponíveis | A fila mantém a ordem de chegada dos usuários interessados em um livro, garantindo atendimento justo (primeiro a chegar, primeiro a ser atendido). |
-| **Dicionário** | Armazenamento de dados dos livros e usuários | Dicionários oferecem acesso rápido por meio de chave (ID), sendo ideais para buscas, cadastros, alterações e remoções. |
-| **Conjunto (Set)** | Gerenciamento de categorias dos livros | Permite garantir que não existam categorias duplicadas, além de oferecer operações eficientes de verificação de existência e inserção. |
+| **Dicionário**             | Armazenamento de dados dos livros e usuários                | Dicionários oferecem acesso rápido por meio de chave (ID), sendo ideais para buscas, cadastros, alterações e remoções. |
+| **Conjunto (Set)**         | Gerenciamento de categorias dos livros                      | Permite garantir que não existam categorias duplicadas, além de oferecer operações eficientes de verificação de existência e inserção. |
+| **Tupla**                  | Retorno imutável dos detalhes de um livro específico         | Tuplas são leves e imutáveis, sendo apropriadas para retornar múltiplos dados (como título, autor e exemplares) de forma estruturada e protegida contra alterações. |
+
 
 ---
 
